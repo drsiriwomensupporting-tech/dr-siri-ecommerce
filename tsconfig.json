@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@drsiri/types": ["packages/types/src/index.ts"],
+      "@drsiri/config": ["packages/config/src/index.ts"],
+      "@drsiri/utils": ["packages/utils/src/index.ts"],
+      "@drsiri/ui/*": ["packages/ui/src/*"],
+      "@drsiri/ui": ["packages/ui/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "apps/*/node_modules"]
+}
