@@ -526,7 +526,7 @@ export default function ProductsPage() {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="px-6 py-3.5 font-semibold text-sm text-foreground">
+                    <TableCell className="px-6 py-3.5 font-semibold text-sm text-foreground whitespace-normal max-w-xs">
                       <div className="flex flex-col">
                         <span>{product.product_name}</span>
                         {product.image_urls?.length > 1 && (
