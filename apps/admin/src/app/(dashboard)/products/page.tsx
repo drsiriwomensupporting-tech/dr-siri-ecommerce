@@ -34,7 +34,7 @@ import {
   SelectContent,
   SelectItem
 } from '@drsiri/ui'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { toast } from 'sonner'
@@ -650,15 +650,21 @@ function ProductsPageContent() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-semibold text-muted-foreground uppercase">Seller</label>
-                  <select 
-                    {...addForm.register('seller_id')}
-                    className="flex h-9 w-full rounded-md border border-border bg-background px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
-                  >
-                    <option value="">Select Seller</option>
-                    {sellers.map((s: any) => (
-                      <option key={s.id} value={s.id}>{s.seller_name}</option>
-                    ))}
-                  </select>
+                  <Controller
+                    name="seller_id"
+                    control={addForm.control}
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        className="flex h-9 w-full rounded-md border border-border bg-background px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
+                      >
+                        <option value="">Select Seller</option>
+                        {sellers.map((s: any) => (
+                          <option key={s.id} value={s.id}>{s.seller_name}</option>
+                        ))}
+                      </select>
+                    )}
+                  />
                   {addForm.formState.errors.seller_id && (
                     <span className="text-xs text-destructive mt-0.5">{addForm.formState.errors.seller_id.message}</span>
                   )}
@@ -844,15 +850,21 @@ function ProductsPageContent() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1">
                     <label className="text-xs font-semibold text-muted-foreground uppercase">Seller</label>
-                    <select 
-                      {...editForm.register('seller_id')}
-                      className="flex h-9 w-full rounded-md border border-border bg-background px-3 py-1 text-sm shadow-xs transition-colors"
-                    >
-                      <option value="">Select Seller</option>
-                      {sellers.map((s: any) => (
-                        <option key={s.id} value={s.id}>{s.seller_name}</option>
-                      ))}
-                    </select>
+                    <Controller
+                      name="seller_id"
+                      control={editForm.control}
+                      render={({ field }) => (
+                        <select
+                          {...field}
+                          className="flex h-9 w-full rounded-md border border-border bg-background px-3 py-1 text-sm shadow-xs transition-colors"
+                        >
+                          <option value="">Select Seller</option>
+                          {sellers.map((s: any) => (
+                            <option key={s.id} value={s.id}>{s.seller_name}</option>
+                          ))}
+                        </select>
+                      )}
+                    />
                     {editForm.formState.errors.seller_id && (
                       <span className="text-xs text-destructive mt-0.5">{editForm.formState.errors.seller_id.message}</span>
                     )}
