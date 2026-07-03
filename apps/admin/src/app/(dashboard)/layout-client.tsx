@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -15,7 +15,6 @@ import {
   LogOut, 
   Menu, 
   X, 
-  Sparkles, 
   ChevronRight,
   Bell,
   Search
@@ -39,6 +38,81 @@ export default function DashboardShellClient({
   const supabase = createClient()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [globalSearch, setGlobalSearch] = useState('')
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+
+  const unreadCount = notifications.filter(n => !n.is_read).length
+
+  const fetchNotifications = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(20)
+      if (!error && data) {
+        setNotifications(data)
+      }
+    } catch (err) {
+      console.error('Error fetching notifications:', err)
+    }
+  }
+
+  const markAsRead = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', id)
+      if (!error) {
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n))
+      }
+    } catch (err) {
+      console.error('Error marking notification as read:', err)
+    }
+  }
+
+  const markAllAsRead = async () => {
+    try {
+      const unreadIds = notifications.filter(n => !n.is_read).map(n => n.id)
+      if (unreadIds.length === 0) return
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .in('id', unreadIds)
+      if (!error) {
+        setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
+      }
+    } catch (err) {
+      console.error('Error marking all notifications as read:', err)
+    }
+  }
+
+  useEffect(() => {
+    fetchNotifications()
+
+    const channel = supabase
+      .channel('public-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications'
+        },
+        (payload) => {
+          setNotifications(prev => [payload.new, ...prev].slice(0, 20))
+          toast(payload.new.title, {
+            description: payload.new.message,
+          })
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [])
 
   const handleSignOut = async () => {
     try {
@@ -91,8 +165,8 @@ export default function DashboardShellClient({
         <div className="flex flex-col flex-1 min-h-0">
           {/* Logo Brand Header */}
           <div className="flex items-center h-16 px-6 border-b border-border gap-2">
-            <div className="size-8 rounded-lg bg-primary flex items-center justify-center border border-primary/20 shadow-sm">
-              <Sparkles className="size-4 text-white" />
+            <div className="size-8 rounded-lg overflow-hidden border border-border shadow-xs flex items-center justify-center">
+              <img src="/logo.jpg" alt="Logo" className="size-full object-cover" />
             </div>
             <div className="flex flex-col">
               <span className="font-display font-bold text-base tracking-tight text-primary leading-tight">
@@ -158,7 +232,7 @@ export default function DashboardShellClient({
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex flex-col flex-1 md:pl-64">
+      <div className="flex flex-col flex-1 md:pl-64 min-w-0">
         {/* Top Navbar */}
         <header className="sticky top-0 z-20 flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8 border-b border-border bg-card/85 backdrop-blur-sm">
           <div className="flex items-center gap-4">
@@ -187,9 +261,63 @@ export default function DashboardShellClient({
               />
             </form>
 
-            <button className="p-2 text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg transition-colors cursor-pointer">
-              <Bell className="size-4" />
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                className="p-2 text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg transition-colors cursor-pointer relative"
+              >
+                <Bell className="size-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-rose-600 ring-2 ring-background animate-pulse" />
+                )}
+              </button>
+
+              {isNotificationOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsNotificationOpen(false)} />
+                  <div className="absolute right-0 mt-2 w-80 bg-card border border-border rounded-xl shadow-lg z-50 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-border flex justify-between items-center bg-muted/10">
+                      <span className="font-display font-bold text-xs">Notifications</span>
+                      {unreadCount > 0 && (
+                        <button 
+                          onClick={markAllAsRead}
+                          className="text-[10px] font-semibold text-primary hover:underline cursor-pointer"
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                    </div>
+                    <div className="max-h-64 overflow-y-auto divide-y divide-border">
+                      {notifications.length === 0 ? (
+                        <div className="px-4 py-6 text-center text-xs text-muted-foreground">
+                          No notifications yet.
+                        </div>
+                      ) : (
+                        notifications.map((n) => (
+                          <div 
+                            key={n.id} 
+                            onClick={() => markAsRead(n.id)}
+                            className={`px-4 py-3 text-left transition-colors cursor-pointer hover:bg-muted/30 ${
+                              !n.is_read ? 'bg-muted/10 font-semibold' : ''
+                            }`}
+                          >
+                            <div className="flex justify-between items-start gap-2">
+                              <span className="text-[11px] text-foreground leading-tight">{n.title}</span>
+                              <span className="text-[9px] text-muted-foreground shrink-0 mt-0.5">
+                                {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground mt-1 leading-normal font-normal">
+                              {n.message}
+                            </p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </header>
 
@@ -223,8 +351,8 @@ export default function DashboardShellClient({
 
             {/* Mobile Logo Brand */}
             <div className="flex items-center h-16 px-6 border-b border-border gap-2">
-              <div className="size-8 rounded-lg bg-primary flex items-center justify-center border border-primary/20">
-                <Sparkles className="size-4 text-white" />
+              <div className="size-8 rounded-lg overflow-hidden border border-border flex items-center justify-center">
+                <img src="/logo.jpg" alt="Logo" className="size-full object-cover" />
               </div>
               <div className="flex flex-col">
                 <span className="font-display font-bold text-base tracking-tight text-primary leading-tight">
