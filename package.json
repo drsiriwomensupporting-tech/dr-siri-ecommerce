@@ -9,6 +9,8 @@
   "scripts": {
     "dev": "npm run dev --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present"
+    "lint": "npm run lint --workspaces --if-present",
+    "env:local": "cp apps/admin/.env.local.local apps/admin/.env.local && echo 'Switched to local Supabase configuration'",
+    "env:cloud": "cp apps/admin/.env.local.cloud apps/admin/.env.local && echo 'Switched to cloud Supabase configuration'"
   }
 }
