@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -17,9 +17,10 @@ import {
   X, 
   ChevronRight,
   Bell,
-  Search
+  Search,
+  Loader2
 } from 'lucide-react'
-import { Button, Input } from '@drsiri/ui'
+import { Button, Input, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent } from '@drsiri/ui'
 import { toast } from 'sonner'
 
 interface DashboardShellClientProps {
@@ -38,8 +39,12 @@ export default function DashboardShellClient({
   const supabase = createClient()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [globalSearch, setGlobalSearch] = useState('')
+  const [searchResults, setSearchResults] = useState<{ products: any[]; sellers: any[]; categories: any[] }>({ products: [], sellers: [], categories: [] })
+  const [isSearching, setIsSearching] = useState(false)
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+  const searchCache = useRef<Record<string, { products: any[]; sellers: any[]; categories: any[] }>>({})
   const [notifications, setNotifications] = useState<any[]>([])
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
 
   const unreadCount = notifications.filter(n => !n.is_read).length
 
@@ -113,6 +118,78 @@ export default function DashboardShellClient({
       supabase.removeChannel(channel)
     }
   }, [])
+
+  // Handle outside clicks to close the search dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  // Handle global search input change and execute queries (debounced + cached + RPC)
+  useEffect(() => {
+    const trimmed = globalSearch.trim().toLowerCase()
+    
+    // Start searching only after 2 characters
+    if (trimmed.length < 2) {
+      setSearchResults({ products: [], sellers: [], categories: [] })
+      setIsSearching(false)
+      return
+    }
+
+    // Check Cache
+    if (searchCache.current[trimmed]) {
+      setSearchResults(searchCache.current[trimmed])
+      setIsSearching(false)
+      return
+    }
+
+    let isCurrent = true
+    setIsSearching(true)
+    
+    // Increased debounce to 250 ms
+    const delayDebounce = setTimeout(async () => {
+      try {
+        // Query using a single database RPC for better scalability & single round-trip
+        const { data, error } = await supabase.rpc('global_search', { search_query: trimmed })
+
+        if (error) {
+          throw error
+        }
+
+        const results = {
+          products: data?.products || [],
+          sellers: data?.sellers || [],
+          categories: data?.categories || []
+        }
+
+        // Cache results
+        searchCache.current[trimmed] = results
+
+        // Cancel/ignore stale requests
+        if (isCurrent && globalSearch.trim().toLowerCase() === trimmed) {
+          setSearchResults(results)
+        }
+      } catch (err) {
+        console.error('Global search error:', err)
+      } finally {
+        if (isCurrent) {
+          setIsSearching(false)
+        }
+      }
+    }, 250)
+
+    return () => {
+      isCurrent = false
+      clearTimeout(delayDebounce)
+    }
+  }, [globalSearch])
 
   const handleSignOut = async () => {
     try {
@@ -249,75 +326,175 @@ export default function DashboardShellClient({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Global Search Bar */}
-            <form onSubmit={handleSearchSubmit} className="hidden sm:flex relative max-w-xs">
-              <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground/75" />
+            {/* Global Search Bar with Live Results */}
+            <div ref={searchRef} className="hidden sm:block relative w-60 z-30">
+              <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground/75 z-10" />
+              {isSearching && (
+                <Loader2 className="absolute right-2.5 top-2.5 size-4 text-primary animate-spin z-10" />
+              )}
               <Input
                 type="text"
-                placeholder="Global search products..."
+                placeholder="Global search..."
                 value={globalSearch}
                 onChange={(e) => setGlobalSearch(e.target.value)}
-                className="w-60 pl-8 h-9 text-xs bg-muted/30 border-border focus:bg-background"
+                onFocus={() => setIsSearchFocused(true)}
+                className="w-full pl-8 pr-8 h-9 text-xs bg-muted/30 border-border focus:bg-background"
               />
-            </form>
-
-            <div className="relative">
-              <button 
-                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                className="p-2 text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg transition-colors cursor-pointer relative"
-              >
-                <Bell className="size-4" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-rose-600 ring-2 ring-background animate-pulse" />
-                )}
-              </button>
-
-              {isNotificationOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsNotificationOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-80 bg-card border border-border rounded-xl shadow-lg z-50 overflow-hidden">
-                    <div className="px-4 py-3 border-b border-border flex justify-between items-center bg-muted/10">
-                      <span className="font-display font-bold text-xs">Notifications</span>
-                      {unreadCount > 0 && (
-                        <button 
-                          onClick={markAllAsRead}
-                          className="text-[10px] font-semibold text-primary hover:underline cursor-pointer"
-                        >
-                          Mark all read
-                        </button>
-                      )}
+              
+              {isSearchFocused && globalSearch.trim() !== '' && (
+                <div className="absolute left-0 right-0 mt-1 max-h-96 w-80 bg-card border border-border rounded-xl shadow-lg z-50 overflow-y-auto divide-y divide-border">
+                  {searchResults.products.length === 0 && 
+                   searchResults.sellers.length === 0 && 
+                   searchResults.categories.length === 0 ? (
+                    <div className="px-4 py-6 text-center text-xs text-muted-foreground">
+                      No results matching &quot;{globalSearch}&quot;
                     </div>
-                    <div className="max-h-64 overflow-y-auto divide-y divide-border">
-                      {notifications.length === 0 ? (
-                        <div className="px-4 py-6 text-center text-xs text-muted-foreground">
-                          No notifications yet.
+                  ) : (
+                    <>
+                      {/* Products */}
+                      {searchResults.products.length > 0 && (
+                        <div className="py-1">
+                          <span className="px-3 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">Products</span>
+                          {searchResults.products.map((p) => (
+                            <button
+                              key={p.id}
+                              onClick={() => {
+                                setGlobalSearch('')
+                                setIsSearchFocused(false)
+                                router.push(`/products?search=${encodeURIComponent(p.product_name)}`)
+                              }}
+                              className="w-full px-3 py-1.5 flex items-center gap-2.5 text-left text-xs hover:bg-muted/40 transition-colors cursor-pointer"
+                            >
+                              <div className="size-6 rounded bg-muted/40 flex items-center justify-center overflow-hidden border border-border shrink-0">
+                                {p.thumbnail_image_url ? (
+                                  <img src={p.thumbnail_image_url} alt="" className="size-full object-cover" />
+                                ) : (
+                                  <ShoppingBag className="size-3 text-muted-foreground" />
+                                )}
+                              </div>
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="font-semibold text-foreground truncate">{p.product_name}</span>
+                                <span className="text-[10px] text-muted-foreground">₹{p.price}</span>
+                              </div>
+                            </button>
+                          ))}
                         </div>
-                      ) : (
-                        notifications.map((n) => (
-                          <div 
-                            key={n.id} 
-                            onClick={() => markAsRead(n.id)}
-                            className={`px-4 py-3 text-left transition-colors cursor-pointer hover:bg-muted/30 ${
-                              !n.is_read ? 'bg-muted/10 font-semibold' : ''
-                            }`}
-                          >
-                            <div className="flex justify-between items-start gap-2">
-                              <span className="text-[11px] text-foreground leading-tight">{n.title}</span>
-                              <span className="text-[9px] text-muted-foreground shrink-0 mt-0.5">
-                                {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                              </span>
-                            </div>
-                            <p className="text-[10px] text-muted-foreground mt-1 leading-normal font-normal">
-                              {n.message}
-                            </p>
-                          </div>
-                        ))
                       )}
-                    </div>
-                  </div>
-                </>
+
+                      {/* Sellers */}
+                      {searchResults.sellers.length > 0 && (
+                        <div className="py-1">
+                          <span className="px-3 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">Sellers</span>
+                          {searchResults.sellers.map((s) => (
+                            <button
+                              key={s.id}
+                              onClick={() => {
+                                setGlobalSearch('')
+                                setIsSearchFocused(false)
+                                router.push(`/sellers?search=${encodeURIComponent(s.seller_name)}`)
+                              }}
+                              className="w-full px-3 py-1.5 flex items-center gap-2.5 text-left text-xs hover:bg-muted/40 transition-colors cursor-pointer"
+                            >
+                              <div className="size-6 rounded bg-muted/40 flex items-center justify-center overflow-hidden border border-border shrink-0">
+                                {s.business_logo_url ? (
+                                  <img src={s.business_logo_url} alt="" className="size-full object-cover" />
+                                ) : (
+                                  <Users className="size-3 text-muted-foreground" />
+                                )}
+                              </div>
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="font-semibold text-foreground truncate">{s.seller_name}</span>
+                                <span className="text-[10px] text-muted-foreground line-clamp-1 truncate">{s.business_description || 'Seller'}</span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Categories */}
+                      {searchResults.categories.length > 0 && (
+                        <div className="py-1">
+                          <span className="px-3 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">Categories</span>
+                          {searchResults.categories.map((c) => (
+                            <button
+                              key={c.id}
+                              onClick={() => {
+                                setGlobalSearch('')
+                                setIsSearchFocused(false)
+                                router.push(`/categories?search=${encodeURIComponent(c.category_name)}`)
+                              }}
+                              className="w-full px-3 py-1.5 flex items-center gap-2.5 text-left text-xs hover:bg-muted/40 transition-colors cursor-pointer"
+                            >
+                              <Tags className="size-3 text-muted-foreground shrink-0" />
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="font-semibold text-foreground truncate">{c.category_name}</span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               )}
             </div>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button 
+                  className="p-2 text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg transition-colors cursor-pointer relative"
+                >
+                  <Bell className="size-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-rose-600 ring-2 ring-background animate-pulse" />
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="end" className="w-80 p-0 border-border bg-card shadow-lg z-50 overflow-hidden">
+                <div className="px-4 py-3 border-b border-border flex justify-between items-center bg-muted/10">
+                  <span className="font-display font-bold text-xs">Notifications</span>
+                  {unreadCount > 0 && (
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault()
+                        markAllAsRead()
+                      }}
+                      className="text-[10px] font-semibold text-primary hover:underline cursor-pointer"
+                    >
+                      Mark all read
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-64 overflow-y-auto divide-y divide-border">
+                  {notifications.length === 0 ? (
+                    <div className="px-4 py-6 text-center text-xs text-muted-foreground">
+                      No notifications yet.
+                    </div>
+                  ) : (
+                    notifications.map((n) => (
+                      <div 
+                        key={n.id} 
+                        onClick={() => markAsRead(n.id)}
+                        className={`px-4 py-3 text-left transition-colors cursor-pointer hover:bg-muted/30 ${
+                          !n.is_read ? 'bg-muted/10 font-semibold' : ''
+                        }`}
+                      >
+                        <div className="flex justify-between items-start gap-2">
+                          <span className="text-[11px] text-foreground leading-tight">{n.title}</span>
+                          <span className="text-[9px] text-muted-foreground shrink-0 mt-0.5">
+                            {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-1 leading-normal font-normal">
+                          {n.message}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 
