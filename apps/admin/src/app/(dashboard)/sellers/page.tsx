@@ -347,7 +347,7 @@ export default function SellersPage() {
               <TableBody>
                 {paginatedSellers.map((seller) => (
                   <TableRow key={seller.id} className="hover:bg-muted/5 transition-colors">
-                    <TableCell className="px-6 py-3.5">
+                    <TableCell className="px-6 py-3.5 whitespace-normal max-w-[280px]">
                       <div className="flex items-center gap-3">
                         <div className="size-10 rounded-lg bg-muted/40 flex items-center justify-center overflow-hidden border border-border shrink-0">
                           {seller.business_logo_url ? (
