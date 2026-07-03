@@ -57,7 +57,7 @@ const sellerSchema = z.object({
   seller_name: z.string().min(2, { message: 'Business name must be at least 2 characters.' }),
   contact_person_name: z.string().min(2, { message: 'Contact person name must be at least 2 characters.' }),
   mobile_number: z.string().min(10, { message: 'Please enter a valid mobile number.' }),
-  whatsapp_number: z.string().optional().or(z.literal('')),
+  whatsapp_number: z.string().min(10, { message: 'Please enter a valid WhatsApp number.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   business_description: z.string().optional().or(z.literal('')),
   business_logo_url: z.string().optional().or(z.literal('')),
@@ -126,6 +126,8 @@ function SellersPageContent() {
     }
   })
 
+  const watchedAddMobile = addForm.watch('mobile_number')
+
   const editForm = useForm<SellerFormValues>({
     resolver: zodResolver(sellerSchema)
   })
@@ -143,6 +145,7 @@ function SellersPageContent() {
     onSuccess: () => {
       toast.success('Seller added successfully!')
       queryClient.invalidateQueries({ queryKey: ['sellers'] })
+      queryClient.invalidateQueries({ queryKey: ['sellers-dropdown'] })
       setIsAddOpen(false)
       addForm.reset()
     },
@@ -164,6 +167,7 @@ function SellersPageContent() {
     onSuccess: () => {
       toast.success('Seller updated successfully!')
       queryClient.invalidateQueries({ queryKey: ['sellers'] })
+      queryClient.invalidateQueries({ queryKey: ['sellers-dropdown'] })
       setEditingSeller(null)
     },
     onError: (error: any) => {
@@ -182,6 +186,7 @@ function SellersPageContent() {
     onSuccess: () => {
       toast.success('Seller status updated!')
       queryClient.invalidateQueries({ queryKey: ['sellers'] })
+      queryClient.invalidateQueries({ queryKey: ['sellers-dropdown'] })
     },
     onError: (error: any) => {
       toast.error('Failed to update seller status: ' + error.message)
@@ -199,6 +204,7 @@ function SellersPageContent() {
     onSuccess: () => {
       toast.success('Seller deleted successfully!')
       queryClient.invalidateQueries({ queryKey: ['sellers'] })
+      queryClient.invalidateQueries({ queryKey: ['sellers-dropdown'] })
     },
     onError: (error: any) => {
       toast.error('Failed to delete seller: ' + error.message)
@@ -515,8 +521,22 @@ function SellersPageContent() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-muted-foreground uppercase">WhatsApp (Optional)</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase">WhatsApp</label>
+                  {watchedAddMobile && watchedAddMobile.length >= 10 && (
+                    <button
+                      type="button"
+                      onClick={() => addForm.setValue('whatsapp_number', watchedAddMobile, { shouldValidate: true })}
+                      className="text-[10px] font-semibold text-primary hover:underline cursor-pointer"
+                    >
+                      Same as mobile
+                    </button>
+                  )}
+                </div>
                 <Input placeholder="9876543210" {...addForm.register('whatsapp_number')} />
+                {addForm.formState.errors.whatsapp_number && (
+                  <span className="text-xs text-destructive mt-0.5">{addForm.formState.errors.whatsapp_number.message}</span>
+                )}
               </div>
             </div>
 
@@ -614,8 +634,22 @@ function SellersPageContent() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-muted-foreground uppercase">WhatsApp (Optional)</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase">WhatsApp</label>
+                    {editForm.watch('mobile_number') && editForm.watch('mobile_number').length >= 10 && (
+                      <button
+                        type="button"
+                        onClick={() => editForm.setValue('whatsapp_number', editForm.getValues('mobile_number'), { shouldValidate: true })}
+                        className="text-[10px] font-semibold text-primary hover:underline cursor-pointer"
+                      >
+                        Same as mobile
+                      </button>
+                    )}
+                  </div>
                   <Input placeholder="9876543210" {...editForm.register('whatsapp_number')} />
+                  {editForm.formState.errors.whatsapp_number && (
+                    <span className="text-xs text-destructive mt-0.5">{editForm.formState.errors.whatsapp_number.message}</span>
+                  )}
                 </div>
               </div>
 
