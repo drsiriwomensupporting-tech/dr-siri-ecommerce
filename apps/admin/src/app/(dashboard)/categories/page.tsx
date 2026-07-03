@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { 
@@ -56,10 +57,16 @@ const categorySchema = z.object({
 
 type CategoryFormValues = z.infer<typeof categorySchema>
 
-export default function CategoriesPage() {
+function CategoriesPageContent() {
   const supabase = createClient()
   const queryClient = useQueryClient()
+  const searchParams = useSearchParams()
+  const searchParamQuery = searchParams.get('search')
   const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    setSearchQuery(searchParamQuery || '')
+  }, [searchParamQuery])
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   
   // Dialog controls
@@ -535,5 +542,18 @@ export default function CategoriesPage() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+export default function CategoriesPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+        <Loader2 className="size-8 animate-spin text-primary mb-2 animate-pulse" />
+        <span>Loading categories page...</span>
+      </div>
+    }>
+      <CategoriesPageContent />
+    </Suspense>
   )
 }
