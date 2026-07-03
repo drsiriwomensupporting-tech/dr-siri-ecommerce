@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { 
@@ -64,10 +65,16 @@ const sellerSchema = z.object({
 
 type SellerFormValues = z.infer<typeof sellerSchema>
 
-export default function SellersPage() {
+function SellersPageContent() {
   const supabase = createClient()
   const queryClient = useQueryClient()
+  const searchParams = useSearchParams()
+  const searchParamQuery = searchParams.get('search')
   const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    setSearchQuery(searchParamQuery || '')
+  }, [searchParamQuery])
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 8
@@ -668,5 +675,18 @@ export default function SellersPage() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+export default function SellersPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+        <Loader2 className="size-8 animate-spin text-primary mb-2 animate-pulse" />
+        <span>Loading sellers page...</span>
+      </div>
+    }>
+      <SellersPageContent />
+    </Suspense>
   )
 }
