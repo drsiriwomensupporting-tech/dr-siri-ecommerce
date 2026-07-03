@@ -305,7 +305,7 @@ export default function ReviewsPage() {
                     <TableCell className="px-6 py-3.5 text-center">
                       <div className="flex justify-center">{renderStars(review.rating)}</div>
                     </TableCell>
-                    <TableCell className="px-6 py-3.5 text-xs text-muted-foreground max-w-sm">
+                    <TableCell className="px-6 py-3.5 text-xs text-muted-foreground max-w-sm whitespace-normal">
                       <p className="line-clamp-2 leading-relaxed" title={review.review}>
                         {review.review || <span className="italic text-muted-foreground/60">No text provided.</span>}
                       </p>
