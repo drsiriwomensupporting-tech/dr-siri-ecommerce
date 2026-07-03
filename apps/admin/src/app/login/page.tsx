@@ -16,7 +16,7 @@ import {
   CardFooter 
 } from '@drsiri/ui'
 import { toast } from 'sonner'
-import { KeyRound, Mail, Sparkles, Loader2 } from 'lucide-react'
+import { KeyRound, Mail, Loader2 } from 'lucide-react'
 
 // Validation Schemas
 const loginSchema = z.object({
@@ -117,8 +117,8 @@ export default function LoginPage() {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md z-10">
         <div className="flex justify-center items-center gap-2 mb-2">
-          <div className="size-10 rounded-xl bg-primary flex items-center justify-center border border-primary/20 shadow-md">
-            <Sparkles className="size-5 text-white" />
+          <div className="size-10 rounded-xl overflow-hidden border border-border shadow-sm flex items-center justify-center">
+            <img src="/logo.jpg" alt="Dr. Siri Logo" className="size-full object-cover" />
           </div>
           <span className="font-display font-semibold text-2xl tracking-tight text-primary">
             Dr. Siri
