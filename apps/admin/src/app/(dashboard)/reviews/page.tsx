@@ -21,7 +21,11 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuItem
+  DropdownMenuItem,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
 } from '@drsiri/ui'
 import { toast } from 'sonner'
 import { 
@@ -48,6 +52,7 @@ export default function ReviewsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'PENDING' | 'APPROVED' | 'REJECTED'>('all')
   const [currentPage, setCurrentPage] = useState(1)
+  const [selectedReview, setSelectedReview] = useState<any | null>(null)
   const itemsPerPage = 8
 
   // Fetch reviews with product details
@@ -320,6 +325,15 @@ export default function ReviewsPage() {
                     </TableCell>
                     <TableCell className="px-6 py-3.5 text-right">
                       <div className="flex justify-end gap-1">
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          onClick={() => setSelectedReview(review)}
+                          className="size-7 border-border text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
+                          title="View Review Details"
+                        >
+                          <Eye className="size-3.5" />
+                        </Button>
                         {review.approval_status === 'PENDING' && (
                           <>
                             <Button 
@@ -349,6 +363,13 @@ export default function ReviewsPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-40 border-border bg-card">
+                            <DropdownMenuItem 
+                              onClick={() => setSelectedReview(review)}
+                              className="text-xs cursor-pointer"
+                            >
+                              <Eye className="size-3.5 mr-2 text-muted-foreground" />
+                              View Details
+                            </DropdownMenuItem>
                             {review.approval_status !== 'APPROVED' && (
                               <DropdownMenuItem 
                                 onClick={() => updateStatusMutation.mutate({ id: review.id, status: 'APPROVED' })}
@@ -418,6 +439,133 @@ export default function ReviewsPage() {
           </Button>
         </div>
       )}
+
+      {/* View Review Modal */}
+      <Dialog open={!!selectedReview} onOpenChange={(open) => !open && setSelectedReview(null)}>
+        <DialogContent className="sm:max-w-md border-border bg-card">
+          <DialogHeader>
+            <DialogTitle className="font-display font-bold">Review Details</DialogTitle>
+          </DialogHeader>
+          {selectedReview && (
+            <div className="flex flex-col gap-4 mt-2">
+              <div className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg border border-border">
+                <div className="size-10 rounded bg-muted/40 flex items-center justify-center overflow-hidden border border-border shrink-0">
+                  {selectedReview.products?.thumbnail_image_url ? (
+                    <img src={selectedReview.products.thumbnail_image_url} alt="" className="size-full object-cover" />
+                  ) : (
+                    <MessageSquare className="size-5 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="font-semibold text-sm truncate text-foreground">
+                    {selectedReview.products?.product_name || 'Deleted Product'}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    Product ID: {selectedReview.product_id}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-xs">
+                <div className="flex flex-col gap-1">
+                  <span className="text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">Customer Name</span>
+                  <span className="text-foreground font-medium">{selectedReview.customer_name}</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">Submitted On</span>
+                  <span className="text-foreground font-medium">{formatDate(selectedReview.review_date)}</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">Rating</span>
+                  <div className="flex">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star 
+                        key={i} 
+                        className={`size-3.5 ${i < selectedReview.rating ? 'text-amber-400 fill-amber-400' : 'text-muted/40'}`} 
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">Status</span>
+                  <div>
+                    <Badge variant="outline" className={`text-[10px] font-semibold border ${getReviewStatusColor(selectedReview.approval_status)}`}>
+                      {selectedReview.approval_status}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1 border-t border-border pt-3">
+                <span className="text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">Review Comment</span>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap mt-1 p-3 bg-muted/20 border border-border rounded-lg">
+                  {selectedReview.review || <span className="italic text-muted-foreground/60">No text comment provided.</span>}
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-2 border-t border-border pt-4 mt-2">
+                {selectedReview.approval_status === 'PENDING' && (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        updateStatusMutation.mutate({ id: selectedReview.id, status: 'REJECTED' })
+                        setSelectedReview(null)
+                      }}
+                      className="border-border text-rose-600 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-100 cursor-pointer"
+                    >
+                      <X className="size-3.5 mr-1" />
+                      Reject
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        updateStatusMutation.mutate({ id: selectedReview.id, status: 'APPROVED' })
+                        setSelectedReview(null)
+                      }}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 cursor-pointer"
+                    >
+                      <Check className="size-3.5 mr-1" />
+                      Approve
+                    </Button>
+                  </>
+                )}
+                {selectedReview.approval_status === 'APPROVED' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      updateStatusMutation.mutate({ id: selectedReview.id, status: 'REJECTED' })
+                      setSelectedReview(null)
+                    }}
+                    className="border-border text-rose-600 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-100 cursor-pointer"
+                  >
+                    <X className="size-3.5 mr-1" />
+                    Reject / Hide
+                  </Button>
+                )}
+                {selectedReview.approval_status === 'REJECTED' && (
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      updateStatusMutation.mutate({ id: selectedReview.id, status: 'APPROVED' })
+                      setSelectedReview(null)
+                    }}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 cursor-pointer"
+                  >
+                    <Check className="size-3.5 mr-1" />
+                    Approve / Show
+                  </Button>
+                )}
+                <Button variant="ghost" size="sm" onClick={() => setSelectedReview(null)} className="cursor-pointer">
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
