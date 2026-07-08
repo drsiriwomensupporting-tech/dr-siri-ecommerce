@@ -113,7 +113,7 @@ export function HeroSection({ heroProducts }: HeroSectionProps) {
 
             {/* Subtitle */}
             <p className="text-base sm:text-lg text-muted-foreground max-w-lg leading-relaxed animate-fade-up delay-200">
-              Dr. Siri is a premium catalog celebrating local craftsmanship —
+              Dr. Siri is a premium catalog celebrating local craftsmanship 
               sarees, pickles, chocolates, jewellery &amp; more. Contact artisans
               directly on WhatsApp.
             </p>
