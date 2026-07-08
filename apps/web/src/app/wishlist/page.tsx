@@ -35,12 +35,16 @@ export default function WishlistPage() {
   })
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 flex flex-col gap-8">
+    <div className="mx-auto max-w-7xl px-4 pt-16 pb-24 sm:px-6 lg:px-8 flex flex-col gap-10">
       
       {/* Title */}
-      <div>
-        <h1 className="font-display text-3xl font-extrabold text-foreground tracking-tight">My Wishlist</h1>
-        <p className="text-xs text-muted-foreground mt-1">Products you saved for later</p>
+      <div className="relative border-b border-border/60 pb-6">
+        <h1 className="font-display text-4xl font-extrabold text-foreground tracking-tight">
+          My <span className="text-gradient-primary">Wishlist</span>
+        </h1>
+        <p className="text-sm text-muted-foreground mt-2 max-w-lg leading-relaxed">
+          Your curated selection of hand-crafted products and unique items from inspiring women entrepreneurs.
+        </p>
       </div>
 
       {/* Loading Skeletons */}
@@ -61,14 +65,21 @@ export default function WishlistPage() {
       ) : wishlist.length === 0 ? (
         
         /* Empty State */
-        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground bg-card border border-border rounded-xl shadow-2xs">
-          <Heart className="size-12 text-rose-300 mb-4" />
-          <span className="font-display font-bold text-sm text-foreground">Your Wishlist is Empty</span>
-          <p className="text-xs text-muted-foreground mt-1 max-w-xs text-center leading-relaxed">
-            Save items here while you browse our catalog to easily review them later and purchase directly on WhatsApp.
+        <div className="relative overflow-hidden flex flex-col items-center justify-center py-24 px-6 text-muted-foreground bg-card/40 border border-border/80 rounded-2xl shadow-xs backdrop-blur-md max-w-xl mx-auto w-full">
+          {/* Decorative background glow */}
+          <div className="absolute -top-24 -left-24 size-48 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 size-48 rounded-full bg-secondary/5 blur-3xl pointer-events-none" />
+          
+          <div className="relative size-20 rounded-full bg-rose-500/5 flex items-center justify-center mb-6">
+            <Heart className="size-10 text-rose-500 fill-rose-500/10 animate-float" />
+          </div>
+          
+          <h3 className="font-display font-extrabold text-xl text-foreground tracking-tight">Your Wishlist is Empty</h3>
+          <p className="text-sm text-muted-foreground mt-3 max-w-sm text-center leading-relaxed">
+            Keep track of items you love while you browse the catalog. Once you add items, you can review them here and contact sellers directly on WhatsApp.
           </p>
-          <Link href="/products" className="mt-6">
-            <Button size="sm" className="inline-flex items-center gap-2 font-bold cursor-pointer">
+          <Link href="/products" className="mt-8">
+            <Button size="lg" className="inline-flex items-center gap-2 font-bold cursor-pointer h-11 px-6 shadow-md hover:shadow-lg hover:shadow-primary/10 transition-all text-white bg-primary hover:bg-primary/90">
               Explore Products
               <ArrowRight className="size-4 shrink-0" />
             </Button>
