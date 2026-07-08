@@ -8,9 +8,13 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspaces --if-present",
+    "dev:web": "npm run dev --workspace=web",
+    "dev:admin": "npm run dev --workspace=admin",
     "build": "npm run build --workspaces --if-present",
+    "build:web": "npm run build --workspace=web",
+    "build:admin": "npm run build --workspace=admin",
     "lint": "npm run lint --workspaces --if-present",
-    "env:local": "cp apps/admin/.env.local.local apps/admin/.env.local && echo 'Switched to local Supabase configuration'",
-    "env:cloud": "cp apps/admin/.env.local.cloud apps/admin/.env.local && echo 'Switched to cloud Supabase configuration'"
+    "env:local": "cp apps/admin/.env.local.local apps/admin/.env.local && cp apps/web/.env.local.local apps/web/.env.local && echo 'Switched to local Supabase configuration'",
+    "env:cloud": "cp apps/admin/.env.local.cloud apps/admin/.env.local && cp apps/web/.env.local.cloud apps/web/.env.local && echo 'Switched to cloud Supabase configuration'"
   }
 }
