@@ -347,7 +347,7 @@ function ProductsPageContent() {
                 value={sortBy}
                 onValueChange={(value) => { setSortBy(value as any); setCurrentPage(1); }}
               >
-                <SelectTrigger className="h-9 w-[150px] text-xs border-border bg-background cursor-pointer">
+                <SelectTrigger className="h-9 w-44 px-4 text-xs border-border bg-background hover:bg-muted/30 cursor-pointer shadow-2xs">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent position="popper" align="end" className="text-xs bg-popover text-popover-foreground border border-border rounded-lg shadow-md">

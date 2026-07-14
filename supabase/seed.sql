@@ -132,17 +132,6 @@ VALUES
 ON CONFLICT (id) DO NOTHING;
 
 
--- 5. Insert Dummy Reviews
-INSERT INTO public.reviews (id, product_id, customer_name, rating, review, approval_status, review_date)
-VALUES
-  ('11111111-aaaa-bbbb-cccc-000000000001', '00000000-0000-0000-0001-000000000001', 'Anita Deshmukh', 5, 'The Banarasi saree is absolutely breathtaking. True master workmanship!', 'APPROVED', now() - INTERVAL '3 days'),
-  ('22222222-aaaa-bbbb-cccc-000000000002', '00000000-0000-0000-0001-000000000001', 'Meera Patel', 4, 'Very beautiful color, but took a bit longer to deliver. Happy with the quality.', 'APPROVED', now() - INTERVAL '1 day'),
-  ('33333333-aaaa-bbbb-cccc-000000000003', '00000000-0000-0000-0002-000000000001', 'Sneha Paul', 5, 'Love these terracotta earrings! They are so light and look very pretty.', 'APPROVED', now() - INTERVAL '12 hours'),
-  ('44444444-aaaa-bbbb-cccc-000000000004', '00000000-0000-0000-0003-000000000001', 'Kriti Sharma', 3, 'Spacious, but the print pattern looks slightly faded compared to the photo.', 'PENDING', now() - INTERVAL '2 hours'),
-  ('55555555-aaaa-bbbb-cccc-000000000005', '00000000-0000-0000-0001-000000000002', 'Devika Nair', 5, 'Yellow color is radiant! Feels so authentic.', 'PENDING', now() - INTERVAL '15 minutes')
-ON CONFLICT (id) DO NOTHING;
-
-
 -- 6. Insert System Settings
 INSERT INTO public.system_settings (key, value, updated_at)
 VALUES
@@ -154,7 +143,5 @@ ON CONFLICT (key) DO NOTHING;
 -- 7. Insert Dummy Notifications
 INSERT INTO public.notifications (id, type, title, message, is_read, reference_id, created_at)
 VALUES
-  ('99999999-1111-2222-3333-444444444441', 'NEW_REVIEW', 'New Review Submitted', 'A new review has been submitted for approval by customer Kriti Sharma.', false, '44444444-aaaa-bbbb-cccc-000000000004', now() - INTERVAL '2 hours'),
-  ('99999999-1111-2222-3333-444444444442', 'NEW_REVIEW', 'New Review Submitted', 'A new review has been submitted for approval by customer Devika Nair.', false, '55555555-aaaa-bbbb-cccc-000000000005', now() - INTERVAL '15 minutes'),
   ('99999999-1111-2222-3333-444444444443', 'NEW_SELLER', 'New Seller Registration', 'New seller registered: Organic Threads (Kiran Bedi).', true, '44444444-5555-6666-7777-888888888888', now() - INTERVAL '1 day')
 ON CONFLICT (id) DO NOTHING;
