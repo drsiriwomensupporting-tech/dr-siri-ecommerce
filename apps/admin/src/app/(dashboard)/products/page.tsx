@@ -38,6 +38,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { toast } from 'sonner'
+import { optimizeImage } from '@/lib/image-optimizer'
 import { 
   Plus, 
   Search, 
@@ -253,12 +254,12 @@ function ProductsPageContent() {
           continue
         }
 
-        const fileExt = file.name.split('.').pop()
-        const fileName = `product_${Date.now()}_${i}.${fileExt}`
+        const optimizedFile = await optimizeImage(file)
+        const fileName = `product_${Date.now()}_${i}.webp`
 
         const { error: uploadError } = await supabase.storage
           .from('products')
-          .upload(fileName, file)
+          .upload(fileName, optimizedFile)
 
         if (uploadError) throw uploadError
 

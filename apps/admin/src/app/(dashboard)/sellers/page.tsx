@@ -33,6 +33,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { toast } from 'sonner'
+import { optimizeImage } from '@/lib/image-optimizer'
 import { 
   Plus, 
   Search, 
@@ -223,11 +224,11 @@ function SellersPageContent() {
 
     setUploadingLogo(true)
     try {
-      const fileExt = file.name.split('.').pop()
-      const fileName = `seller_logo_${Date.now()}.${fileExt}`
+      const optimizedFile = await optimizeImage(file)
+      const fileName = `seller_logo_${Date.now()}.webp`
       const { error: uploadError } = await supabase.storage
         .from('sellers')
-        .upload(fileName, file)
+        .upload(fileName, optimizedFile)
 
       if (uploadError) throw uploadError
 
