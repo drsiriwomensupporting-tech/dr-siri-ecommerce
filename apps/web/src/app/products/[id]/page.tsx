@@ -9,15 +9,10 @@ import { WishlistDetailButton } from '@/components/wishlist-detail-button'
 import { Button, Badge, Card, CardContent } from '@drsiri/ui'
 import { 
   formatCurrency, 
-  formatDate, 
   getStockStatusColor 
 } from '@drsiri/utils'
 import { 
-  Phone, 
   MessageCircle, 
-  Star, 
-  Calendar, 
-  User, 
   ArrowLeft, 
   Building 
 } from 'lucide-react'
@@ -70,15 +65,6 @@ export default async function ProductDetailsPage({ params }: PageProps) {
     notFound()
   }
 
-  // Fetch approved customer reviews
-  const { data: reviewsData } = await supabase
-    .from('reviews')
-    .select('*')
-    .eq('product_id', id)
-    .eq('approval_status', 'APPROVED')
-    .order('review_date', { ascending: false })
-  const reviews = reviewsData || []
-
   // Fetch up to 4 related products in same category (excluding current)
   const { data: relatedProductsData } = await supabase
     .from('products')
@@ -111,12 +97,6 @@ Thank you.`
   }
   const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(messageTemplate)}`
 
-  // Rating Stats
-  const totalReviews = reviews.length
-  const averageRating = totalReviews > 0 
-    ? (reviews.reduce((acc, curr) => acc + curr.rating, 0) / totalReviews).toFixed(1)
-    : 0
-
   // 3. Schema.org JSON-LD Structured Data
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -131,11 +111,6 @@ Thank you.`
       'itemCondition': 'https://schema.org/NewCondition',
       'availability': product.available_stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
     },
-    'aggregateRating': totalReviews > 0 ? {
-      '@type': 'AggregateRating',
-      'ratingValue': averageRating,
-      'reviewCount': totalReviews,
-    } : undefined,
   }
 
   return (
@@ -237,70 +212,7 @@ Thank you.`
 
       </div>
 
-      {/* Customer Reviews Section */}
-      <section className="border-t border-border pt-12">
-        <div className="flex flex-col gap-6 max-w-3xl">
-          <div>
-            <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">Customer Reviews</h2>
-            {totalReviews > 0 ? (
-              <div className="flex items-center gap-2 mt-1.5">
-                <div className="flex">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star 
-                      key={i} 
-                      className={`size-4 ${i < Math.round(parseFloat(averageRating as string)) ? 'text-amber-400 fill-amber-400' : 'text-muted/40'}`} 
-                    />
-                  ))}
-                </div>
-                <span className="text-xs text-muted-foreground font-semibold">
-                  {averageRating} out of 5 ({totalReviews} {totalReviews === 1 ? 'review' : 'reviews'})
-                </span>
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground mt-1">Read honest feedback from previous customers</p>
-            )}
-          </div>
 
-          <div className="flex flex-col gap-4 divide-y divide-border">
-            {reviews.map((r) => (
-              <div key={r.id} className="flex flex-col gap-2 pt-4 first:pt-0">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-2">
-                    <div className="size-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[10px] border border-primary/10">
-                      <User className="size-3" />
-                    </div>
-                    <span className="font-semibold text-xs text-foreground">{r.customer_name}</span>
-                  </div>
-                  <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                    <Calendar className="size-3" />
-                    {formatDate(r.review_date)}
-                  </span>
-                </div>
-
-                {/* Stars */}
-                <div className="flex">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star 
-                      key={i} 
-                      className={`size-3 ${i < r.rating ? 'text-amber-400 fill-amber-400' : 'text-muted/40'}`} 
-                    />
-                  ))}
-                </div>
-
-                <p className="text-xs text-muted-foreground leading-relaxed pl-8">
-                  {r.review}
-                </p>
-              </div>
-            ))}
-
-            {reviews.length === 0 && (
-              <div className="py-8 text-center text-xs text-muted-foreground bg-muted/10 border border-border rounded-xl">
-                No reviews yet for this product.
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
 
       {/* Related Products Grid */}
       {relatedProducts.length > 0 && (

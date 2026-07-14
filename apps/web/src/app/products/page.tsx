@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { ProductCard } from '@/components/product-card'
-import { Button, Input } from '@drsiri/ui'
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@drsiri/ui'
 import { 
   Search, 
   SlidersHorizontal, 
@@ -343,16 +343,20 @@ function ProductsPageContent() {
               </Button>
 
               {/* Sort dropdown */}
-              <select
+              <Select
                 value={sortBy}
-                onChange={(e) => { setSortBy(e.target.value as any); setCurrentPage(1); }}
-                className="flex h-9 rounded-md border border-border bg-background px-3 py-1 text-xs shadow-xs focus-visible:outline-hidden cursor-pointer"
+                onValueChange={(value) => { setSortBy(value as any); setCurrentPage(1); }}
               >
-                <option value="newest">Newest First</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="name_asc">Alphabetical</option>
-              </select>
+                <SelectTrigger className="h-9 w-[150px] text-xs border-border bg-background cursor-pointer">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent position="popper" align="end" className="text-xs bg-popover text-popover-foreground border border-border rounded-lg shadow-md">
+                  <SelectItem value="newest" className="text-xs cursor-pointer">Newest First</SelectItem>
+                  <SelectItem value="price_asc" className="text-xs cursor-pointer">Price: Low to High</SelectItem>
+                  <SelectItem value="price_desc" className="text-xs cursor-pointer">Price: High to Low</SelectItem>
+                  <SelectItem value="name_asc" className="text-xs cursor-pointer">Alphabetical</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

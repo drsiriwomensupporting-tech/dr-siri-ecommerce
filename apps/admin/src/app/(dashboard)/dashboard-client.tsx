@@ -7,7 +7,6 @@ import {
   Users, 
   Tags, 
   AlertTriangle, 
-  MessageSquare, 
   Heart,
   Plus,
   ArrowRight,
@@ -42,7 +41,6 @@ interface DashboardClientProps {
     totalSellers: number
     totalCategories: number
     outOfStock: number
-    pendingReviews: number
     totalWishlist: number
   }
   recentSellers: any[]
@@ -89,14 +87,6 @@ export default function DashboardClient({
       icon: AlertTriangle,
       color: stats.outOfStock > 0 ? 'text-rose-600 bg-rose-50 border-rose-100' : 'text-slate-500 bg-slate-50 border-slate-100',
       href: '/inventory'
-    },
-    {
-      title: 'Pending Reviews',
-      value: stats.pendingReviews,
-      description: 'Awaiting moderation',
-      icon: MessageSquare,
-      color: stats.pendingReviews > 0 ? 'text-amber-600 bg-amber-50 border-amber-100' : 'text-slate-500 bg-slate-50 border-slate-100',
-      href: '/reviews'
     },
     {
       title: 'Wishlist Count',

@@ -9,7 +9,6 @@ import {
   Users, 
   ShoppingBag, 
   Tags, 
-  MessageSquare, 
   Warehouse, 
   UserCog, 
   LogOut, 
@@ -211,7 +210,6 @@ export default function DashboardShellClient({
     { name: 'Sellers', href: '/sellers', icon: Users },
     { name: 'Products', href: '/products', icon: ShoppingBag },
     { name: 'Categories', href: '/categories', icon: Tags },
-    { name: 'Reviews', href: '/reviews', icon: MessageSquare },
     { name: 'Inventory', href: '/inventory', icon: Warehouse },
     { name: 'Admin Users', href: '/admins', icon: UserCog },
   ]
@@ -222,7 +220,6 @@ export default function DashboardShellClient({
     if (pathname.startsWith('/sellers')) return 'Sellers'
     if (pathname.startsWith('/products')) return 'Products'
     if (pathname.startsWith('/categories')) return 'Categories'
-    if (pathname.startsWith('/reviews')) return 'Reviews'
     if (pathname.startsWith('/inventory')) return 'Inventory'
     if (pathname.startsWith('/admins')) return 'Admin Users'
     return 'Admin Portal'

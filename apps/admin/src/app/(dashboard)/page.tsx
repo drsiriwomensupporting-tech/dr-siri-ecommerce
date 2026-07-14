@@ -13,7 +13,6 @@ export default async function DashboardPage() {
     sellersRes,
     categoriesRes,
     outOfStockRes,
-    pendingReviewsRes,
     wishlistRes,
     recentSellersRes,
     recentProductsRes,
@@ -23,7 +22,6 @@ export default async function DashboardPage() {
     supabase.from('sellers').select('*', { count: 'exact', head: true }),
     supabase.from('categories').select('*', { count: 'exact', head: true }),
     supabase.from('products').select('*', { count: 'exact', head: true }).eq('available_stock', 0),
-    supabase.from('reviews').select('*', { count: 'exact', head: true }).eq('approval_status', 'PENDING'),
     supabase.from('wishlist').select('*', { count: 'exact', head: true }),
     supabase.from('sellers').select('*').order('created_at', { ascending: false }).limit(5),
     supabase.from('products').select('*, sellers(seller_name)').order('created_at', { ascending: false }).limit(5),
@@ -50,7 +48,6 @@ export default async function DashboardPage() {
     totalSellers: sellersRes.count || 0,
     totalCategories: categoriesRes.count || 0,
     outOfStock: outOfStockRes.count || 0,
-    pendingReviews: pendingReviewsRes.count || 0,
     totalWishlist: wishlistRes.count || 0,
   }
 

@@ -76,7 +76,7 @@ export default function WishlistPage() {
           
           <h3 className="font-display font-extrabold text-xl text-foreground tracking-tight">Your Wishlist is Empty</h3>
           <p className="text-sm text-muted-foreground mt-3 max-w-sm text-center leading-relaxed">
-            Keep track of items you love while you browse the catalog. Once you add items, you can review them here and contact sellers directly on WhatsApp.
+            Keep track of items you love while you browse the catalog. Once you add items, you can see them here and contact sellers directly on WhatsApp.
           </p>
           <Link href="/products" className="mt-8">
             <Button size="lg" className="inline-flex items-center gap-2 font-bold cursor-pointer h-11 px-6 shadow-md hover:shadow-lg hover:shadow-primary/10 transition-all text-white bg-primary hover:bg-primary/90">
