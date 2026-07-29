@@ -11,7 +11,6 @@ import {
   Star,
   ShieldCheck,
   HeartHandshake,
-  Sparkles,
   Users,
   MessageCircle,
 } from 'lucide-react'
@@ -207,9 +206,9 @@ export default async function Home() {
       </section>
 
       {/* ═══════════════════════════════════
-          6. OUR STORY
+          6. OUR STORY & MOVEMENT
       ═══════════════════════════════════ */}
-      <section className="py-24 bg-background">
+      <section className="py-24 bg-background border-t border-border/50">
         <div className="mx-auto max-w-6xl w-full px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
@@ -217,42 +216,70 @@ export default async function Home() {
             <div className="relative order-last lg:order-first">
               <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-border shadow-2xl">
                 <Image
-                  src="https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&q=80&w=800"
-                  alt="Women working together"
+                  src="/dr-siri-story.jpeg"
+                  alt="Dr. Sridevi (Dr. Siri) - Women Supporting Women"
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover"
-                  loading="lazy"
+                  className="object-cover object-top"
+                  priority
                 />
                 {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               </div>
               {/* Floating quote card */}
-              <div className="absolute -bottom-6 -right-4 lg:right-auto lg:-left-6 bg-white rounded-2xl shadow-xl border border-border p-5 max-w-xs">
+              <div className="absolute -bottom-6 -right-4 lg:right-auto lg:-left-6 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-border p-5 max-w-xs">
                 <p className="text-xs text-muted-foreground italic leading-relaxed">
-                  &ldquo;When you support a woman, you support an entire family and community.&rdquo;
+                  &ldquo;Empowering Women. Inspiring Change. Transforming Lives.&rdquo;
                 </p>
-                <span className="mt-2 block text-xs font-bold text-primary">— Dr. Siri Mission</span>
+                <span className="mt-2 block text-xs font-bold text-primary">— Dr. Sridevi (Dr. Siri)</span>
               </div>
             </div>
 
             {/* Copy */}
             <div className="flex flex-col gap-6">
-              <span className="font-display text-xs font-bold text-primary uppercase tracking-widest">Our Story</span>
-              <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground leading-tight">
-                Empowering Women,
-                <br />
-                <span className="text-gradient-primary">Supporting Communities</span>
-              </h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Dr. Siri is more than an online catalog — it is a movement. We believe that when you support
-                a woman, you support an entire family and community. By giving women entrepreneurs a digital
-                platform, we remove technical barriers and bring their craft to the world.
-              </p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Browse our collection today. Each product carries a story of dedication, resilience, and talent.
-                Contact the seller directly on WhatsApp and take home a piece of handcrafted excellence.
-              </p>
+              <div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-primary bg-primary/10 border border-primary/20 uppercase tracking-widest">
+                  Women Supporting Women
+                </span>
+                <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground leading-tight mt-3">
+                  Stronger Together.
+                  <br />
+                  <span className="text-gradient-primary">Brighter Together.</span>
+                </h2>
+              </div>
+
+              <div className="flex flex-col gap-4 text-sm text-muted-foreground leading-relaxed">
+                <p>
+                  Every woman deserves the opportunity to live with confidence, good health, financial independence, and the support of a caring community. <strong className="text-foreground font-semibold">Women Supporting Women</strong>, founded by Dr. Sridevi (Dr. Siri), is a movement dedicated to empowering women to grow, heal, and inspire one another.
+                </p>
+                <p>
+                  Born from Dr. Siri&apos;s own journey of overcoming life&apos;s challenges, this initiative is built on the belief that when women stand together, they create stronger families, healthier communities, and a better future for everyone.
+                </p>
+                <p>
+                  Our community brings together women from all walks of life through wellness programs, Ayurvedic health awareness, fitness guidance, mental well-being sessions, entrepreneurship opportunities, and social impact initiatives. Whether you are seeking better health, starting a business, rebuilding confidence, or simply looking for a supportive network, you will find a place here.
+                </p>
+                <p>
+                  We also provide platforms for women entrepreneurs to showcase their talents, promote their businesses, and connect with a wider audience, helping them achieve financial independence while inspiring others to follow their dreams.
+                </p>
+                <p>
+                  At Women Supporting Women, every story matters, every voice is valued, and every step forward is celebrated. Together, we are creating a future where women uplift women, lead with purpose, and thrive with confidence.
+                </p>
+              </div>
+
+              {/* Join the Movement Card */}
+              <div className="mt-2 p-6 rounded-2xl bg-gradient-to-br from-primary/5 via-primary/10 to-accent/5 border border-primary/20 shadow-sm">
+                <h3 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+                  <HeartHandshake className="size-5 text-primary shrink-0" />
+                  Join the Movement
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed mt-2">
+                  Become part of a growing community that believes in compassion, empowerment, and transformation. Together, we can build healthier lives, stronger businesses, meaningful friendships, and lasting change.
+                </p>
+                <p className="text-xs font-bold text-primary mt-3 tracking-wide">
+                  Empowering Women. Inspiring Change. Transforming Lives.
+                </p>
+              </div>
+
               <div className="flex flex-wrap gap-3 pt-2">
                 <Link href="/products">
                   <Button
