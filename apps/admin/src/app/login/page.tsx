@@ -118,8 +118,8 @@ export default function LoginPage() {
       <div className="absolute bottom-0 right-1/4 size-[500px] rounded-full bg-secondary/5 blur-[120px] pointer-events-none" />
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md z-10">
-        <div className="flex justify-center items-center gap-2 mb-2">
-          <div className="size-10 rounded-xl overflow-hidden border border-border shadow-sm flex items-center justify-center">
+        <div className="flex justify-center items-center gap-2.5 mb-2">
+          <div className="size-12 rounded-xl overflow-hidden border border-border shadow-sm flex items-center justify-center">
             <img src="/logo.jpg" alt="Dr. Siri Logo" className="size-full object-cover" />
           </div>
           <span className="font-display font-semibold text-2xl tracking-tight text-primary">

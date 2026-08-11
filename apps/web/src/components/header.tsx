@@ -118,7 +118,7 @@ export function Header() {
           {/* Brand Logo */}
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2">
-              <div className="size-9 overflow-hidden rounded-lg border border-border shadow-xs flex items-center justify-center bg-white">
+              <div className="size-11 sm:size-12 overflow-hidden rounded-xl border border-border shadow-xs flex items-center justify-center bg-white">
                 <img src="/logo.jpg" alt="Logo" className="size-full object-cover" onError={(e) => {
                   e.currentTarget.style.display = 'none';
                 }} />
