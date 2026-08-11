@@ -22,6 +22,18 @@ export const metadata: Metadata = {
     template: "%s | Dr. Siri",
   },
   description: "A premium e-commerce catalogue empowering women entrepreneurs. Browse sarees, chocolates, pickles, jewellery, and Maggam work, and contact sellers directly on WhatsApp.",
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/site.webmanifest',
+  appleWebApp: {
+    title: 'Dr. Siri',
+  },
   openGraph: {
     title: "Dr. Siri – Women Supporting Women",
     description: "A premium e-commerce catalogue empowering women entrepreneurs.",
