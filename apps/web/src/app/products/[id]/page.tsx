@@ -17,7 +17,7 @@ import {
   Building 
 } from 'lucide-react'
 
-export const revalidate = 60 // Revalidate product page every 60 seconds
+export const revalidate = 300 // Revalidate product page every 5 minutes
 
 interface PageProps {
   params: Promise<{ id: string }>

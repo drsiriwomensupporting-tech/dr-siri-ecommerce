@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     description: "A premium e-commerce catalogue empowering women entrepreneurs.",
     type: "website",
     locale: "en_IN",
-    url: "https://drsiri.com",
+    url: "https://drsiriwomensupporting.in",
     siteName: "Dr. Siri",
   },
   twitter: {
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     title: "Dr. Siri – Women Supporting Women",
     description: "A premium e-commerce catalogue empowering women entrepreneurs.",
   },
-  metadataBase: new URL("https://drsiri.com"),
+  metadataBase: new URL("https://drsiriwomensupporting.in"),
 };
 
 export default function RootLayout({

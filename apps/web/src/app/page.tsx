@@ -15,7 +15,7 @@ import {
   MessageCircle,
 } from 'lucide-react'
 
-export const revalidate = 60
+export const revalidate = 300 // Revalidate home page every 5 minutes
 
 export default async function Home() {
   const supabase = await createClient()

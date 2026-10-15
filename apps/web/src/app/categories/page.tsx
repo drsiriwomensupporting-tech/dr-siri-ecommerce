@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent } from '@drsiri/ui'
 import { ShoppingBag, ArrowRight } from 'lucide-react'
 
-export const revalidate = 60 // Revalidate category page every 60 seconds
+export const revalidate = 300 // Revalidate category page every 5 minutes
 
 export default async function CategoriesPage() {
   const supabase = await createClient()
